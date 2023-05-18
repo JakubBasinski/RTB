@@ -26,14 +26,12 @@ interface SaxNode {
 let currentTag: string = '';
 let currentOffer: Offer | null;
 let openingTimes: string = '';
+let totalNumber: number = 0;
 let numberOfActiveOffers: number = 0;
 let numberOfInactiveOffers: number = 0;
 
-let totalNumber: number = 0;
-
 let root = xmlbuilder.create('offers');
 let writeStream = fs.createWriteStream('./feed_out.xml');
-
 writeStream.write('<?xml version="1.0"?>' + '\n' + '<offers>');
 
 saxStream.on('opentag', function (node: SaxNode) {
@@ -45,7 +43,7 @@ saxStream.on('opentag', function (node: SaxNode) {
 
 saxStream.on('cdata', function (cdata: string) {
   if (currentOffer && currentTag === 'opening_times') {
-    openingTimes += cdata;
+    currentOffer[currentTag] =  JSON.parse(cdata)
   } else if (currentOffer) {
     currentOffer[currentTag] = cdata;
   }
@@ -55,7 +53,6 @@ saxStream.on('closetag', function (nodeName: string) {
   if (nodeName === 'offer') {
     totalNumber++
     console.log(totalNumber);
-    currentOffer.opening_times = JSON.parse(openingTimes);
     currentOffer.is_active = isOfferActive(currentOffer.opening_times);
     if (currentOffer.is_active) {
       numberOfActiveOffers++;
@@ -72,7 +69,7 @@ saxStream.on('closetag', function (nodeName: string) {
 
     writeStream.write('\n' + xmlString  , 'utf-8', (err) => {
       if (err) {
-        console.error('Error while writing offer: ', err);
+        console.error('Error while writing : ', err);
       }
     });
 
@@ -84,18 +81,17 @@ saxStream.on('closetag', function (nodeName: string) {
 saxStream.on('end', function () {
   writeStream.write('\n' + '</offers>', 'utf-8', (err) => {
     if (err) {
-      console.error('Error while writing final part: ', err);
+      console.error('Error while writing closing tag: ', err);
     }
   });
   writeStream.end(() => {
-    console.log('XML file created successfully.');
+    console.log('File created successfully.');
     console.log('Number of active offers: ', numberOfActiveOffers);
-    console.log('Number of inactive offers: ', numberOfInactiveOffers);
+    console.log('Number of paused offers: ', numberOfInactiveOffers);
   });
 });
 
 fs.createReadStream('feed.xml').pipe(saxStream);
-
 
 function isOfferActive(schedule: Schedule): boolean {
   const currentDate: Date = new Date();
