@@ -101,7 +101,7 @@ function isOfferActive(schedule: Schedule): boolean {
   const openingFrames: OpeningFrame[] | undefined = schedule[convertedDay];
 
   const currentUTCTime =
-  currentDate.getUTCHours() * 60 + currentDate.getUTCMinutes(); // Przekształcenie na liczbę całkowitą
+  currentDate.getUTCHours() * 60 + currentDate.getUTCMinutes(); 
  
 
   if (!openingFrames || openingFrames.length === 0) {
@@ -113,7 +113,7 @@ function isOfferActive(schedule: Schedule): boolean {
     if (closing === '00:00') {
       closing = '23:59';
     }
-    
+
     const openingTime = parseInt(opening.split(':')[0]) * 60 + parseInt(opening.split(':')[1]);
     const closingTime = parseInt(closing.split(':')[0]) * 60 + parseInt(closing.split(':')[1]);
 
