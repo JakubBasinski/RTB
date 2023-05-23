@@ -51,8 +51,8 @@ saxStream.on('cdata', function (cdata: string) {
 
 saxStream.on('closetag', function (nodeName: string) {
   if (nodeName === 'offer') {
-    totalNumber++
-    console.log(totalNumber);
+    // totalNumber++
+    // console.log(totalNumber);
     currentOffer.is_active = isOfferActive(currentOffer.opening_times);
     if (currentOffer.is_active) {
       numberOfActiveOffers++;
@@ -91,15 +91,18 @@ saxStream.on('end', function () {
   });
 });
 
-fs.createReadStream('feed.xml').pipe(saxStream);
+fs.createReadStream('sample.xml').pipe(saxStream);
 
 function isOfferActive(schedule: Schedule): boolean {
   const currentDate: Date = new Date();
   const currentUTCDay: number = currentDate.getUTCDay();
-  const currentUTCTime: string =
-    currentDate.getUTCHours() + ':' + currentDate.getUTCMinutes();
+
   const convertedDay: number = currentUTCDay === 0 ? 7 : currentUTCDay;
   const openingFrames: OpeningFrame[] | undefined = schedule[convertedDay];
+
+  const currentUTCTime =
+  currentDate.getUTCHours() * 60 + currentDate.getUTCMinutes(); // Przekształcenie na liczbę całkowitą
+ 
 
   if (!openingFrames || openingFrames.length === 0) {
     return false;
@@ -110,6 +113,10 @@ function isOfferActive(schedule: Schedule): boolean {
     if (closing === '00:00') {
       closing = '23:59';
     }
-    return currentUTCTime >= opening && currentUTCTime <= closing;
+    
+    const openingTime = parseInt(opening.split(':')[0]) * 60 + parseInt(opening.split(':')[1]);
+    const closingTime = parseInt(closing.split(':')[0]) * 60 + parseInt(closing.split(':')[1]);
+
+    return currentUTCTime >= openingTime && currentUTCTime <= closingTime;
   });
 }
