@@ -51,8 +51,8 @@ saxStream.on('cdata', function (cdata: string) {
 
 saxStream.on('closetag', function (nodeName: string) {
   if (nodeName === 'offer') {
-    // totalNumber++
-    // console.log(totalNumber);
+    totalNumber++
+    console.log(totalNumber);
     currentOffer.is_active = isOfferActive(currentOffer.opening_times);
     if (currentOffer.is_active) {
       numberOfActiveOffers++;
@@ -91,7 +91,7 @@ saxStream.on('end', function () {
   });
 });
 
-fs.createReadStream('sample.xml').pipe(saxStream);
+fs.createReadStream('feed.xml').pipe(saxStream);
 
 function isOfferActive(schedule: Schedule): boolean {
   const currentDate: Date = new Date();
